@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 
 void main() => runApp(BytebankApp());
@@ -7,7 +9,7 @@ class BytebankApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return (MaterialApp(
       home: Scaffold(
-        body: FormularioTransferencia(),
+        body: ListaTransferencias(),
       ),
     ));
   }
@@ -37,7 +39,7 @@ class FormularioTransferencia extends StatelessWidget {
               icone: Icons.monetization_on),
           ElevatedButton(
             onPressed: () {
-              _criarTransferencia();
+              _criarTransferencia(context);
             },
             child: Text('Confirmar'),
           )
@@ -46,11 +48,12 @@ class FormularioTransferencia extends StatelessWidget {
     );
   }
 
-  void _criarTransferencia() {
+  void _criarTransferencia(BuildContext context) {
     final int numeroConta = int.tryParse(_controladorCampoNumeroConta.text);
     final double valor = double.tryParse(_controladorCampoValor.text);
     if (numeroConta != null && valor != null) {
-      Transferencia(valor, numeroConta);
+      final transferenciaCriada = Transferencia(valor, numeroConta);
+      Navigator.pop(context, transferenciaCriada);
     }
   }
 }
@@ -83,6 +86,7 @@ class Editor extends StatelessWidget {
 }
 
 class ListaTransferencias extends StatelessWidget {
+  final List<Transferencia> _transferencia = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +101,16 @@ class ListaTransferencias extends StatelessWidget {
         title: Text('Transferências'),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          final Future<Transferencia> future =
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return FormularioTransferencia();
+          }));
+          future.then((transferenciaRecebida) {
+            debugPrint("Criando Transferência!");
+            debugPrint('$transferenciaRecebida');
+          });
+        },
         child: Icon(Icons.add),
       ),
     );
